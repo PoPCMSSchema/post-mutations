@@ -26,8 +26,8 @@ class Component extends AbstractComponent
     public static function getDependedComponentClasses(): array
     {
         return [
+            \PoPSchema\CustomPostMutations\Component::class,
             \PoPSchema\Posts\Component::class,
-            \PoPSchema\UserState\Component::class,
         ];
     }
 
