@@ -9,6 +9,11 @@ use PoPSchema\CustomPostMutations\MutationResolvers\AbstractCreateUpdateCustomPo
 
 abstract class AbstractCreateUpdatePostMutationResolver extends AbstractCreateUpdateCustomPostMutationResolver
 {
+    protected function getCategoryTaxonomy(): ?string
+    {
+        return 'category';
+    }
+
     protected function getCustomPostType()
     {
         $postTypeAPI = PostTypeAPIFacade::getInstance();
