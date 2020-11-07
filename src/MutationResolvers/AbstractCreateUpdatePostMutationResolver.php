@@ -14,7 +14,7 @@ abstract class AbstractCreateUpdatePostMutationResolver extends AbstractCreateUp
         return 'category';
     }
 
-    protected function getCustomPostType()
+    public function getCustomPostType(): string
     {
         $postTypeAPI = PostTypeAPIFacade::getInstance();
         return $postTypeAPI->getPostCustomPostType();
