@@ -25,6 +25,7 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
     {
         return [
             'createPost',
+            'updatePost',
         ];
     }
 
@@ -32,7 +33,8 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
     {
         $translationAPI = TranslationAPIFacade::getInstance();
         $descriptions = [
-            'createPost' => $translationAPI->__('Create a Post', 'post-mutations'),
+            'createPost' => $translationAPI->__('Create a post', 'post-mutations'),
+            'updatePost' => $translationAPI->__('Update a post', 'post-mutations'),
         ];
         return $descriptions[$fieldName] ?? parent::getSchemaFieldDescription($typeResolver, $fieldName);
     }
@@ -41,6 +43,7 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
     {
         $types = [
             'createPost' => SchemaDefinition::TYPE_ID,
+            'updatePost' => SchemaDefinition::TYPE_ID,
         ];
         return $types[$fieldName] ?? parent::getSchemaFieldType($typeResolver, $fieldName);
     }
@@ -56,6 +59,12 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
                     [
                     ]
                 );
+            case 'updatePost':
+                return array_merge(
+                    $schemaFieldArgs,
+                    [
+                    ]
+                );
         }
         return $schemaFieldArgs;
     }
@@ -64,6 +73,7 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
     {
         switch ($fieldName) {
             case 'createPost':
+            case 'updatePost':
                 return PostTypeResolver::class;
         }
 
