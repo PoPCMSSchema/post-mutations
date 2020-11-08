@@ -6,9 +6,8 @@ namespace PoPSchema\PostMutations\MutationResolvers;
 
 trait CreatePostMutationResolverTrait
 {
-    public function execute(array &$errors, array &$errorcodes, array $form_data)
+    public function execute(array $form_data)
     {
-        $post_id = $this->create($errors, $form_data);
-        return $post_id;
+        return $this->create($form_data);
     }
 }
