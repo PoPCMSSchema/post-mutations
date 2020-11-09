@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace PoPSchema\PostMutations\FieldResolvers;
 
-use PoP\Engine\TypeResolvers\RootTypeResolver;
-use PoP\ComponentModel\FieldResolvers\AbstractQueryableFieldResolver;
-use PoP\Translation\Facades\TranslationAPIFacade;
-use PoP\ComponentModel\Schema\SchemaDefinition;
-use PoP\ComponentModel\TypeResolvers\TypeResolverInterface;
-use PoPSchema\PostMutations\TypeResolvers\PostTypeResolver;
-use PoPSchema\PostMutations\Facades\PostTypeAPIFacade;
 use PoPSchema\CustomPosts\Types\Status;
+use PoP\ComponentModel\Schema\SchemaHelpers;
+use PoP\Engine\TypeResolvers\RootTypeResolver;
+use PoP\ComponentModel\Schema\SchemaDefinition;
+use PoP\ComponentModel\Schema\TypeCastingHelpers;
+use PoP\Translation\Facades\TranslationAPIFacade;
+use PoPSchema\Posts\TypeResolvers\PostTypeResolver;
+use PoPSchema\Media\TypeResolvers\MediaTypeResolver;
 use PoPSchema\SchemaCommons\DataLoading\ReturnTypes;
+use PoPSchema\CustomPosts\Enums\CustomPostStatusEnum;
+use PoPSchema\PostMutations\Facades\PostTypeAPIFacade;
+use PoP\ComponentModel\TypeResolvers\TypeResolverInterface;
+use PoP\ComponentModel\Facades\Instances\InstanceManagerFacade;
+use PoPSchema\CustomPosts\TypeResolvers\CustomPostTypeResolver;
+use PoP\ComponentModel\FieldResolvers\AbstractQueryableFieldResolver;
+use PoPSchema\PostMutations\MutationResolvers\CreatePostMutationResolver;
+use PoPSchema\PostMutations\MutationResolvers\UpdatePostMutationResolver;
+use PoPSchema\CustomPostMutations\MutationResolvers\MutationInputProperties;
 
 class RootFieldResolver extends AbstractQueryableFieldResolver
 {
@@ -50,23 +59,85 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
 
     public function getSchemaFieldArgs(TypeResolverInterface $typeResolver, string $fieldName): array
     {
-        $schemaFieldArgs = parent::getSchemaFieldArgs($typeResolver, $fieldName);
         $translationAPI = TranslationAPIFacade::getInstance();
         switch ($fieldName) {
             case 'createPost':
-                return array_merge(
-                    $schemaFieldArgs,
-                    [
-                    ]
-                );
             case 'updatePost':
+                $instanceManager = InstanceManagerFacade::getInstance();
+                /**
+                 * @var CustomPostStatusEnum
+                 */
+                $customPostStatusEnum = $instanceManager->getInstance(CustomPostStatusEnum::class);
                 return array_merge(
-                    $schemaFieldArgs,
+                    $fieldName == 'updatePost' ? [
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::ID,
+                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_ID,
+                            SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The ID of the post to update', 'post-mutations'),
+                            SchemaDefinition::ARGNAME_MANDATORY => true,
+                        ],
+                    ] : [],
                     [
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::TITLE,
+                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_STRING,
+                            SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The title of the post', 'post-mutations'),
+                        ],
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::CONTENT,
+                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_STRING,
+                            SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The content of the post', 'post-mutations'),
+                        ],
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::STATUS,
+                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_ENUM,
+                            SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The status of the post', 'post-mutations'),
+                            SchemaDefinition::ARGNAME_ENUM_NAME => $customPostStatusEnum->getName(),
+                            SchemaDefinition::ARGNAME_ENUM_VALUES => SchemaHelpers::convertToSchemaFieldArgEnumValueDefinitions(
+                                $customPostStatusEnum->getValues()
+                            ),
+                            SchemaDefinition::ARGNAME_DEFAULT_VALUE => Status::PUBLISHED,
+                        ],
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::CATEGORIES,
+                            SchemaDefinition::ARGNAME_TYPE => TypeCastingHelpers::makeArray(SchemaDefinition::TYPE_ID),
+                            SchemaDefinition::ARGNAME_DESCRIPTION => sprintf(
+                                $translationAPI->__('The IDs of the categories (of type %s)', 'post-mutations'),
+                                'PostCategory'// PostCategory::class
+                            ),
+                        ],
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::FEATUREDIMAGE,
+                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_ID,
+                            SchemaDefinition::ARGNAME_DESCRIPTION => sprintf(
+                                $translationAPI->__('The ID of the featured image (of type %s)', 'post-mutations'),
+                                MediaTypeResolver::NAME
+                            ),
+                        ],
+                        [
+                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::REFERENCES,
+                            SchemaDefinition::ARGNAME_TYPE => TypeCastingHelpers::makeArray(SchemaDefinition::TYPE_ID),
+                            SchemaDefinition::ARGNAME_DESCRIPTION => sprintf(
+                                $translationAPI->__('The IDs of the referenced custom posts (of type %s)', 'post-mutations'),
+                                CustomPostTypeResolver::NAME
+                            ),
+                        ],
                     ]
                 );
         }
-        return $schemaFieldArgs;
+        return parent::getSchemaFieldArgs($typeResolver, $fieldName);
+    }
+
+    public function resolveFieldMutationResolverClass(TypeResolverInterface $typeResolver, string $fieldName, array $fieldArgs = []): ?string
+    {
+        switch ($fieldName) {
+            case 'createPost':
+                return CreatePostMutationResolver::class;
+            case 'updatePost':
+                return UpdatePostMutationResolver::class;
+        }
+
+        return parent::resolveFieldMutationResolverClass($typeResolver, $fieldName, $fieldArgs);
     }
 
     public function resolveFieldTypeResolverClass(TypeResolverInterface $typeResolver, string $fieldName, array $fieldArgs = []): ?string
