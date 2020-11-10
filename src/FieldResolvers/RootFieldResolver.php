@@ -88,16 +88,20 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
                             SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_STRING,
                             SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The content of the post', 'post-mutations'),
                         ],
-                        [
-                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::STATUS,
-                            SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_ENUM,
-                            SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The status of the post', 'post-mutations'),
-                            SchemaDefinition::ARGNAME_ENUM_NAME => $customPostStatusEnum->getName(),
-                            SchemaDefinition::ARGNAME_ENUM_VALUES => SchemaHelpers::convertToSchemaFieldArgEnumValueDefinitions(
-                                $customPostStatusEnum->getValues()
-                            ),
-                            SchemaDefinition::ARGNAME_DEFAULT_VALUE => Status::PUBLISHED,
-                        ],
+                        array_merge(
+                            [
+                                SchemaDefinition::ARGNAME_NAME => MutationInputProperties::STATUS,
+                                SchemaDefinition::ARGNAME_TYPE => SchemaDefinition::TYPE_ENUM,
+                                SchemaDefinition::ARGNAME_DESCRIPTION => $translationAPI->__('The status of the post', 'post-mutations'),
+                                SchemaDefinition::ARGNAME_ENUM_NAME => $customPostStatusEnum->getName(),
+                                SchemaDefinition::ARGNAME_ENUM_VALUES => SchemaHelpers::convertToSchemaFieldArgEnumValueDefinitions(
+                                    $customPostStatusEnum->getValues()
+                                ),
+                            ],
+                            $fieldName == 'createPost' ? [
+                                SchemaDefinition::ARGNAME_DEFAULT_VALUE => Status::PUBLISHED,
+                            ] : [],
+                        ),
                         [
                             SchemaDefinition::ARGNAME_NAME => MutationInputProperties::CATEGORIES,
                             SchemaDefinition::ARGNAME_TYPE => TypeCastingHelpers::makeArray(SchemaDefinition::TYPE_ID),
