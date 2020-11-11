@@ -116,14 +116,6 @@ class RootFieldResolver extends AbstractQueryableFieldResolver
                                 MediaTypeResolver::NAME
                             ),
                         ],
-                        [
-                            SchemaDefinition::ARGNAME_NAME => MutationInputProperties::REFERENCES,
-                            SchemaDefinition::ARGNAME_TYPE => TypeCastingHelpers::makeArray(SchemaDefinition::TYPE_ID),
-                            SchemaDefinition::ARGNAME_DESCRIPTION => sprintf(
-                                $translationAPI->__('The IDs of the referenced custom posts (of type %s)', 'post-mutations'),
-                                CustomPostTypeResolver::NAME
-                            ),
-                        ],
                     ]
                 );
         }
