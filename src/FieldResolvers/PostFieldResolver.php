@@ -104,15 +104,13 @@ class PostFieldResolver extends AbstractQueryableFieldResolver
         array $fieldArgs,
         TypeResolverInterface $typeResolver,
         object $resultItem,
-        string $fieldName,
-        array $options = []
+        string $fieldName
     ): array {
         $fieldArgs = parent::getFieldArgsToExecuteMutation(
             $fieldArgs,
             $typeResolver,
             $resultItem,
-            $fieldName,
-            $options
+            $fieldName
         );
         $post = $resultItem;
         switch ($fieldName) {
