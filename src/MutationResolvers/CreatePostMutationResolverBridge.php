@@ -10,4 +10,9 @@ class CreatePostMutationResolverBridge extends AbstractCreateUpdatePostMutationR
     {
         return CreatePostMutationResolver::class;
     }
+
+    protected function isUpdate(): bool
+    {
+        return false;
+    }
 }
