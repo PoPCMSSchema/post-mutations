@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PoPSchema\PostMutations\FieldResolvers;
 
+use PoP\Engine\ComponentConfiguration as EngineComponentConfiguration;
 use PoP\Engine\TypeResolvers\RootTypeResolver;
 use PoP\ComponentModel\Schema\SchemaDefinition;
 use PoP\Translation\Facades\TranslationAPIFacade;
@@ -23,10 +24,15 @@ class RootFieldResolver extends AbstractDBDataFieldResolver
 
     public static function getFieldNamesToResolve(): array
     {
-        return [
-            'createPost',
-            'updatePost',
-        ];
+        return array_merge(
+            [
+                'createPost',
+            ],
+            !EngineComponentConfiguration::disableRedundantRootTypeMutationFields() ?
+                [
+                    'updatePost',
+                ] : []
+        );
     }
 
     public function getSchemaFieldDescription(TypeResolverInterface $typeResolver, string $fieldName): ?string
