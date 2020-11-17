@@ -6,5 +6,5 @@ namespace PoPSchema\PostMutations\MutationResolvers;
 
 class UpdatePostMutationResolver extends AbstractCreateUpdatePostMutationResolver
 {
-    use CreateUpdatePostMutationResolverTrait, UpdatePostMutationResolverTrait;
+    use UpdatePostMutationResolverTrait;
 }
