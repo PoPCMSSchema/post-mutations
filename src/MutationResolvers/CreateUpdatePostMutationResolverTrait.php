@@ -6,8 +6,9 @@ namespace PoPSchema\PostMutations\MutationResolvers;
 
 trait CreateUpdatePostMutationResolverTrait
 {
-    protected function showCategories()
-    {
-        return !empty(\PoP_Application_Utils::getContentpostsectionCats());
-    }
+    // @TODO: Migrate when package "Categories" is completed
+    // protected function showCategories()
+    // {
+    //     return !empty(\PoP_Application_Utils::getContentpostsectionCats());
+    // }
 }
