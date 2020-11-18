@@ -10,7 +10,7 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 -->
 
-Adds support for post-mutations
+Adds support for post mutations
 
 ## Install
 
